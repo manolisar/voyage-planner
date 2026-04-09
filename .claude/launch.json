@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "voyage-planner",
+      "runtimeExecutable": "/bin/sh",
+      "runtimeArgs": ["-c", "PATH=/opt/homebrew/bin:/usr/local/bin:$PATH exec npx vite --host --base / --port \"$PORT\" --strictPort"],
+      "port": 8091,
+      "autoPort": true
+    }
+  ]
+}
