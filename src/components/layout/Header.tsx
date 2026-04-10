@@ -7,11 +7,11 @@ export default function Header({ onOpenSettings }: Props) {
     <header className="flex justify-between items-center py-6 mb-8">
       <div className="flex items-center gap-4">
         <div className="w-[46px] h-[46px] rounded-2xl flex items-center justify-center bg-gradient-to-br from-txt to-[#2d3a4f] text-white shadow-[0_2px_8px_rgba(26,34,51,0.2)]">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 64 64" aria-hidden="true">
-            <circle cx="32" cy="14" r="4" />
-            <line x1="32" y1="18" x2="32" y2="52" />
-            <path d="M18 30h-4a18 18 0 0 0 36 0h-4" />
-            <line x1="22" y1="22" x2="42" y2="22" />
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="5" r="2" />
+            <line x1="12" y1="7" x2="12" y2="19" />
+            <path d="M5 12H2a10 10 0 0 0 20 0h-3" />
+            <line x1="5" y1="7" x2="19" y2="7" />
           </svg>
         </div>
         <div>
