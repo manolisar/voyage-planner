@@ -1,33 +1,55 @@
 @import 'tailwindcss';
 
+/* ═══════════════════════════════════════════════════════════════════
+   Signal Flag Bands — inspired by Voyage Tracker v7
+   Ocean-cyan primary, navy accents, fuel category bands.
+   ═══════════════════════════════════════════════════════════════════ */
+
 @theme {
-  --color-bg: #f6f8fb;
-  --color-surface: #ffffff;
-  --color-surface-2: #f0f3f8;
-  --color-txt: #1a2233;
-  --color-dim: #6b7b8f;
-  --color-faint: #b0bac6;
-  --color-bdr: #e2e7ef;
+  /* Surfaces */
+  --color-bg: #FAFBFD;
+  --color-surface: #FFFFFF;
+  --color-surface-2: #F3F5F9;
+  --color-txt: #1A2233;
+  --color-dim: #6B7B8F;
+  --color-faint: #B0BAC6;
+  --color-bdr: #E5E9F0;
 
-  --color-hfo: #b45309;
-  --color-hfo-light: #fff8eb;
-  --color-hfo-band: #f59e0b;
-  --color-hfo-border: #fde68a;
+  /* Navy scale */
+  --color-navy-50:  #f0f4f8;
+  --color-navy-100: #d9e2ec;
+  --color-navy-500: #627d98;
+  --color-navy-700: #334e68;
+  --color-navy-800: #243b53;
+  --color-navy-900: #102a43;
 
-  --color-mgo: #047857;
-  --color-mgo-light: #ecfdf5;
-  --color-mgo-band: #10b981;
-  --color-mgo-border: #a7f3d0;
+  /* Ocean (primary accent) */
+  --color-ocean-400: #22d3ee;
+  --color-ocean-500: #06b6d4;
+  --color-ocean-600: #0891b2;
+  --color-ocean-700: #0e7490;
 
-  --color-lsfo: #4338ca;
-  --color-lsfo-light: #eef2ff;
-  --color-lsfo-band: #818cf8;
-  --color-lsfo-border: #c7d2fe;
+  /* Fuel bands — Signal Flag colors */
+  --color-hfo: #D97706;
+  --color-hfo-light: #FFF8EB;
+  --color-hfo-band: #F59E0B;
+  --color-hfo-border: #FDE68A;
 
-  --color-accent: #2563eb;
-  --color-accent-light: #eff6ff;
-  --color-accent-band: #3b82f6;
-  --color-accent-border: #bfdbfe;
+  --color-mgo: #059669;
+  --color-mgo-light: #ECFDF5;
+  --color-mgo-band: #10B981;
+  --color-mgo-border: #A7F3D0;
+
+  --color-lsfo: #6366F1;
+  --color-lsfo-light: #EEF2FF;
+  --color-lsfo-band: #818CF8;
+  --color-lsfo-border: #C7D2FE;
+
+  /* Legacy accent aliased to ocean so existing usages stay coherent */
+  --color-accent: #06b6d4;
+  --color-accent-light: #ECFEFF;
+  --color-accent-band: #22d3ee;
+  --color-accent-border: #A5F3FC;
 
   --color-danger: #dc2626;
   --color-danger-light: #fef2f2;
@@ -42,30 +64,28 @@ body {
   background: var(--color-bg);
   color: var(--color-txt);
   background-image:
-    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(37,99,235,0.04), transparent),
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(6,182,212,0.05), transparent),
     radial-gradient(ellipse 60% 40% at 80% 100%, rgba(16,185,129,0.03), transparent);
   min-height: 100vh;
 }
 
 /* Custom scrollbar */
-::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--color-bdr); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--color-faint); }
+::-webkit-scrollbar-thumb { background: rgba(100,116,139,0.3); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(100,116,139,0.5); }
 
 /* Visible focus rings for keyboard users */
 :where(button, [role="button"], a, input, select, textarea, [tabindex]):focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--color-ocean-500);
   outline-offset: 2px;
   border-radius: 6px;
 }
 
-/* Touch + tap behavior */
 button, a, [role="button"], input, select, textarea {
   touch-action: manipulation;
 }
 
-/* Honor reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -88,7 +108,6 @@ input[type="number"]:focus::-webkit-outer-spin-button {
   opacity: 1;
 }
 
-/* Select styling */
 select {
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7b8f' d='M3 4.5l3 3 3-3'/%3E%3C/svg%3E");
@@ -101,23 +120,218 @@ select {
   from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
 }
-
 @keyframes pulse-dot {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.3; }
 }
-
 @keyframes slideUp {
   from { opacity: 0; transform: translateY(16px) scale(0.98); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
-
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
 }
-
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
+}
+
+/* ═══ BUTTONS (v7-style) ═══ */
+.btn-primary {
+  background: var(--color-ocean-500);
+  color: white;
+  font-weight: 600;
+  padding: 0.55rem 1rem;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-primary:hover {
+  background: var(--color-ocean-600);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.25);
+}
+.btn-primary:active { transform: translateY(0); box-shadow: none; }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+.btn-flat {
+  background: var(--color-surface);
+  border: 1px solid var(--color-bdr);
+  color: var(--color-txt);
+  font-weight: 600;
+  padding: 0.55rem 1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.btn-flat:hover {
+  background: var(--color-surface-2);
+  border-color: var(--color-dim);
+}
+
+/* ═══ CATEGORY CARDS — Stratified motif (8px top bar · title strip · tinted body) ═══
+   The pennant identity is the 8px bar at the top; the title strip is an
+   opaque surface-2 rail; the body tint lives on the card itself so that
+   cards in the same grid row share a uniform height and tint. */
+.cat-card {
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+  background: var(--color-surface);
+  border: 1px solid var(--color-bdr);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.02);
+  transition: transform 0.2s ease, box-shadow 0.25s ease;
+  animation: slideUp 0.35s ease-out both;
+}
+.cat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+}
+.cat-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 8px;
+}
+.cat-label {
+  background: var(--color-surface-2);
+  border-bottom: 1px solid var(--color-bdr);
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  padding: 0.85rem 1.15rem 0.65rem 1.15rem;
+  margin-top: 8px;               /* clears the top bar */
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--color-dim);
+}
+.cat-label .cat-title {
+  color: var(--color-txt);
+  font-weight: 700;
+  font-size: 0.92rem;
+  letter-spacing: 0;
+  text-transform: none;
+  margin-left: 2px;
+}
+.cat-body { padding: 1.1rem 1.15rem 1.15rem 1.15rem; }
+
+/* Variant: engines (fuel – deep navy bar) */
+.cat-card.engines { background: rgba(15,23,42,0.025); }
+.cat-card.engines::after { background: #0F172A; }
+.cat-card.engines .cat-label > .cat-tag { color: #0F172A; }
+
+/* Variant: param (ocean-cyan bar) */
+.cat-card.param { background: rgba(6,182,212,0.035); }
+.cat-card.param::after { background: var(--color-ocean-500); }
+.cat-card.param .cat-label > .cat-tag { color: var(--color-ocean-700); }
+
+/* Variant: result (mgo green bar) */
+.cat-card.result { background: rgba(16,185,129,0.03); }
+.cat-card.result::after { background: var(--color-mgo-band); }
+.cat-card.result .cat-label > .cat-tag { color: var(--color-mgo); }
+
+/* Variant: legs (lsfo indigo bar) */
+.cat-card.legs { background: rgba(99,102,241,0.035); }
+.cat-card.legs::after { background: var(--color-lsfo-band); }
+.cat-card.legs .cat-label > .cat-tag { color: var(--color-lsfo); }
+
+/* Variant: voyage (water blue bar) */
+.cat-card.voyage { background: rgba(2,132,199,0.035); }
+.cat-card.voyage::after { background: #38BDF8; }
+.cat-card.voyage .cat-label > .cat-tag { color: #0284C7; }
+
+/* Tiny tag pill inside the title strip (replaces the old TAG chip) */
+.cat-tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 1.8px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-bdr);
+}
+
+/* Stagger cards inside any grid so they cascade in */
+.grid > .cat-card:nth-child(1) { animation-delay:   0ms; }
+.grid > .cat-card:nth-child(2) { animation-delay:  80ms; }
+.grid > .cat-card:nth-child(3) { animation-delay: 160ms; }
+.grid > .cat-card:nth-child(4) { animation-delay: 240ms; }
+
+/* ═══ FUEL COLS (v7 big-numeric layout, used in Results) ═══ */
+.fuel-cols { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.fuel-col { text-align: center; }
+.fc-type { font-size: 0.6rem; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.fc-dot  { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.fc-big  { font-size: 1.6rem; font-weight: 800; line-height: 1.1; font-family: 'IBM Plex Mono', monospace; }
+
+.fuel-col.hfo  .fc-type, .fuel-col.hfo  .fc-big { color: var(--color-hfo); }
+.fuel-col.hfo  .fc-dot  { background: var(--color-hfo-band); }
+.fuel-col.mgo  .fc-type, .fuel-col.mgo  .fc-big { color: var(--color-mgo); }
+.fuel-col.mgo  .fc-dot  { background: var(--color-mgo-band); }
+.fuel-col.lsfo .fc-type, .fuel-col.lsfo .fc-big { color: var(--color-lsfo); }
+.fuel-col.lsfo .fc-dot  { background: var(--color-lsfo-band); }
+
+/* Σ total pill */
+.fuel-col-sigma { text-align: center; }
+.fuel-col-sigma .fc-big {
+  color: var(--color-txt);
+  display: inline-block;
+  padding: 0.15rem 0.95rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg,
+    var(--color-surface),
+    color-mix(in srgb, var(--color-ocean-500) 18%, var(--color-surface)));
+  border: 1px solid var(--color-bdr);
+}
+
+/* ═══ FLAG BANDS (slim colored stripes, used in equipment rows) ═══ */
+.flag-band { width: 5px; height: 28px; border-radius: 2px; flex-shrink: 0; }
+.flag-band.hfo  { background: var(--color-hfo-band);  }
+.flag-band.mgo  { background: var(--color-mgo-band);  }
+.flag-band.lsfo { background: var(--color-lsfo-band); }
+
+/* ═══ FUEL BADGES (pill variant, used in engine card) ═══ */
+.fuel-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.65rem; font-weight: 800; letter-spacing: 0.6px;
+  font-family: 'IBM Plex Mono', monospace;
+  min-width: 52px; justify-content: center;
+}
+.fuel-badge.hfo  { background: rgba(245,158,11,0.18);  color: var(--color-hfo);  border: 1px solid rgba(245,158,11,0.4); }
+.fuel-badge.mgo  { background: rgba(16,185,129,0.18);  color: var(--color-mgo);  border: 1px solid rgba(16,185,129,0.4); }
+.fuel-badge.lsfo { background: rgba(129,140,248,0.18); color: var(--color-lsfo); border: 1px solid rgba(129,140,248,0.4); }
+
+/* ═══ FORM HELPERS (v7-style) ═══ */
+.form-label {
+  display: block;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: var(--color-faint);
+  margin-bottom: 0.4rem;
+}
+.form-input {
+  width: 100%;
+  padding: 0.6rem 0.85rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-bdr);
+  border-radius: 10px;
+  font-size: 0.88rem;
+  color: var(--color-txt);
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+.form-input:focus {
+  outline: none;
+  border-color: var(--color-ocean-500);
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.12);
 }

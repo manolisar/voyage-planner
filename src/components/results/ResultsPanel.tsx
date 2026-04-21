@@ -63,11 +63,17 @@ export default function ResultsPanel({ result }: Props) {
             <div className="font-mono text-[0.55rem] font-normal text-dim leading-tight">t/h</div>
           </div>
 
-          {/* Total — hero number */}
-          <div className="px-6 py-3.5 bg-accent text-center min-w-[120px] rounded-r-2xl">
-            <div className="text-[0.5rem] font-bold tracking-[2px] uppercase text-blue-200">Total</div>
+          {/* Total — hero number (ocean-cyan gradient, signal-flag feel) */}
+          <div
+            className="px-6 py-3.5 text-center min-w-[120px] rounded-r-2xl"
+            style={{
+              background: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2)',
+            }}
+          >
+            <div className="text-[0.5rem] font-bold tracking-[2px] uppercase text-cyan-100">Total</div>
             <div className="font-mono text-[1.3rem] font-extrabold tabular-nums text-white leading-tight">
-              {r.totalRate.toFixed(2)} <span className="text-[0.55rem] font-normal text-blue-200">t/h</span>
+              {r.totalRate.toFixed(2)} <span className="text-[0.55rem] font-normal text-cyan-100">t/h</span>
             </div>
           </div>
         </div>
