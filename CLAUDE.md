@@ -65,6 +65,8 @@ Every main section renders as a three-stratum card, top-down:
 | `legs`   | lsfo-indigo `#818CF8`         | Cruise Leg Planner |
 | `voyage` | water-blue `#38BDF8`          | Voyage Builder     |
 
+> Naming note: the `tagStyle` prop uses `engine` (singular), but the internal CSS class is `.cat-card.engines` (plural). Panel.tsx maps between them. Other variants share the same name on both sides.
+
 ### Engine cards (special-cased)
 
 Engine cards are *also* stratified (6px fuel-colored top band) but **do not use a full-card wash** — the body is near-white (`--color-surface`) with a 3.5% fuel tint only. The fuel identity lives in:

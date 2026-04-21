@@ -1,8 +1,14 @@
 import { type ReactNode } from 'react';
 
+/**
+ * External `tagStyle` values (what callers pass) map to internal CSS variant
+ * classes on `.cat-card`. Keep them narrowed so typos are caught at compile
+ * time — widening to `string` silently falls back to the default variant.
+ */
+export type PanelTagStyle = 'engine' | 'param' | 'result' | 'legs' | 'voyage';
 type PanelVariant = 'engines' | 'param' | 'result' | 'legs' | 'voyage';
 
-const variantMap: Record<string, PanelVariant> = {
+const variantMap: Record<PanelTagStyle, PanelVariant> = {
   engine: 'engines',
   param: 'param',
   result: 'result',
@@ -12,7 +18,7 @@ const variantMap: Record<string, PanelVariant> = {
 
 interface Props {
   tag: string;
-  tagStyle: string;
+  tagStyle: PanelTagStyle;
   title: string;
   badge?: ReactNode;
   children: ReactNode;
@@ -20,7 +26,7 @@ interface Props {
 }
 
 export default function Panel({ tag, tagStyle, title, badge, children, delay = 0 }: Props) {
-  const variant = variantMap[tagStyle] ?? 'param';
+  const variant = variantMap[tagStyle];
   return (
     <div
       className={`cat-card ${variant} mb-7`}

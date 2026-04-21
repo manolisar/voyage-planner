@@ -31,7 +31,7 @@ function Input({ label, hint, name, value, onChange, min, max, step }: {
         step={step}
         aria-describedby={hintId}
         onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
-        className="font-mono text-[0.9rem] font-semibold tabular-nums bg-white border border-bdr rounded-xl text-txt px-3 py-2.5 w-full outline-none focus:border-accent-band focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)] hover:border-faint transition-[border-color,box-shadow]"
+        className="font-mono text-[0.9rem] font-semibold tabular-nums bg-white border border-bdr rounded-xl text-txt px-3 py-2.5 w-full outline-none focus:border-accent-band focus:shadow-[0_0_0_3px_rgba(6,182,212,0.15)] hover:border-faint transition-[border-color,box-shadow]"
       />
       <div id={hintId} className="text-[0.65rem] text-dim mt-1 leading-snug">{hint}</div>
     </div>

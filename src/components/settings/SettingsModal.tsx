@@ -100,7 +100,7 @@ export default function SettingsModal({ open, settings, onSave, onClose }: Props
                     step={f.step}
                     aria-describedby={hintId}
                     onChange={(e) => setLocal({ ...local, [f.key]: parseFloat(e.target.value) || 0 })}
-                    className="font-mono text-[0.9rem] font-semibold tabular-nums bg-surface-2 border border-bdr rounded-lg text-txt py-2 px-2.5 w-full outline-none focus:border-accent-band focus:shadow-[0_0_0_3px_rgba(37,99,235,0.1)] transition-[border-color,box-shadow]"
+                    className="font-mono text-[0.9rem] font-semibold tabular-nums bg-surface-2 border border-bdr rounded-lg text-txt py-2 px-2.5 w-full outline-none focus:border-accent-band focus:shadow-[0_0_0_3px_rgba(6,182,212,0.15)] transition-[border-color,box-shadow]"
                   />
                   <div id={hintId} className="text-[0.7rem] text-dim mt-0.5">{f.hint}</div>
                 </div>
@@ -119,7 +119,7 @@ export default function SettingsModal({ open, settings, onSave, onClose }: Props
           <button
             type="button"
             onClick={() => { onSave(local); onClose(); }}
-            className="text-[0.78rem] font-bold rounded-lg py-2 px-5 bg-accent text-white border-none hover:bg-[#1d4ed8] hover:shadow-[0_4px_12px_rgba(37,99,235,0.2)] transition-[background-color,box-shadow] cursor-pointer"
+            className="text-[0.78rem] font-bold rounded-lg py-2 px-5 bg-accent text-white border-none hover:bg-ocean-600 hover:shadow-[0_4px_12px_rgba(6,182,212,0.2)] transition-[background-color,box-shadow] cursor-pointer"
           >
             Save & Apply
           </button>

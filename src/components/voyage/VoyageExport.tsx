@@ -155,7 +155,7 @@ export default function VoyageExport({ from, to, date, onFromChange, onToChange,
             value={from}
             onChange={(e) => onFromChange(e.target.value)}
             placeholder="e.g. Piraeus"
-            className="text-[0.85rem] font-semibold bg-white border border-bdr rounded-xl text-txt py-2.5 px-3 w-full outline-none focus:border-accent-band focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)] hover:border-faint transition-[border-color,box-shadow]"
+            className="text-[0.85rem] font-semibold bg-white border border-bdr rounded-xl text-txt py-2.5 px-3 w-full outline-none focus:border-accent-band focus:shadow-[0_0_0_3px_rgba(6,182,212,0.15)] hover:border-faint transition-[border-color,box-shadow]"
           />
         </div>
         <div>
@@ -169,7 +169,7 @@ export default function VoyageExport({ from, to, date, onFromChange, onToChange,
             value={to}
             onChange={(e) => onToChange(e.target.value)}
             placeholder="e.g. Rotterdam"
-            className="text-[0.85rem] font-semibold bg-white border border-bdr rounded-xl text-txt py-2.5 px-3 w-full outline-none focus:border-accent-band focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)] hover:border-faint transition-[border-color,box-shadow]"
+            className="text-[0.85rem] font-semibold bg-white border border-bdr rounded-xl text-txt py-2.5 px-3 w-full outline-none focus:border-accent-band focus:shadow-[0_0_0_3px_rgba(6,182,212,0.15)] hover:border-faint transition-[border-color,box-shadow]"
           />
         </div>
         <div>
@@ -180,7 +180,7 @@ export default function VoyageExport({ from, to, date, onFromChange, onToChange,
             type="date"
             value={date}
             onChange={(e) => onDateChange(e.target.value)}
-            className="font-mono text-[0.82rem] font-semibold tabular-nums bg-white border border-bdr rounded-xl text-txt py-2.5 px-3 w-full outline-none focus:border-accent-band focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)] hover:border-faint transition-[border-color,box-shadow]"
+            className="font-mono text-[0.82rem] font-semibold tabular-nums bg-white border border-bdr rounded-xl text-txt py-2.5 px-3 w-full outline-none focus:border-accent-band focus:shadow-[0_0_0_3px_rgba(6,182,212,0.15)] hover:border-faint transition-[border-color,box-shadow]"
           />
         </div>
       </div>
@@ -188,14 +188,14 @@ export default function VoyageExport({ from, to, date, onFromChange, onToChange,
         <button
           type="button"
           onClick={handleSave}
-          className="text-[0.75rem] font-bold rounded-xl py-2.5 px-5 bg-accent text-white border-none hover:bg-[#1d4ed8] hover:shadow-[0_4px_14px_rgba(37,99,235,0.25)] active:scale-[0.97] transition-[background-color,box-shadow,transform] cursor-pointer whitespace-nowrap"
+          className="text-[0.75rem] font-bold rounded-xl py-2.5 px-5 bg-accent text-white border-none hover:bg-ocean-600 hover:shadow-[0_4px_14px_rgba(6,182,212,0.25)] active:scale-[0.97] transition-[background-color,box-shadow,transform] cursor-pointer whitespace-nowrap"
         >
           Save Voyage
         </button>
         <button
           type="button"
           onClick={() => fileRef.current?.click()}
-          className="text-[0.75rem] font-bold rounded-xl py-2.5 px-5 bg-white text-dim border border-bdr hover:border-accent-band hover:text-accent hover:shadow-[0_2px_8px_rgba(37,99,235,0.08)] transition-[color,border-color,box-shadow] cursor-pointer whitespace-nowrap"
+          className="text-[0.75rem] font-bold rounded-xl py-2.5 px-5 bg-white text-dim border border-bdr hover:border-accent-band hover:text-accent hover:shadow-[0_2px_8px_rgba(6,182,212,0.15)] transition-[color,border-color,box-shadow] cursor-pointer whitespace-nowrap"
         >
           Load Voyage
         </button>

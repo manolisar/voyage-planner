@@ -65,14 +65,14 @@ export default function SeaLegPlanner({ legs, currentResult, speed, onAddLeg, on
             min={0.1}
             step={0.5}
             onChange={(e) => setHours(parseFloat(e.target.value) || 0)}
-            className="font-mono text-[0.9rem] font-semibold tabular-nums bg-white border border-bdr rounded-xl text-txt py-2.5 px-3 w-full outline-none focus:border-accent-band focus:shadow-[0_0_0_3px_rgba(37,99,235,0.08)] hover:border-faint transition-[border-color,box-shadow]"
+            className="font-mono text-[0.9rem] font-semibold tabular-nums bg-white border border-bdr rounded-xl text-txt py-2.5 px-3 w-full outline-none focus:border-accent-band focus:shadow-[0_0_0_3px_rgba(6,182,212,0.15)] hover:border-faint transition-[border-color,box-shadow]"
           />
           <div className="text-[0.65rem] text-dim mt-1">hours</div>
         </div>
         <button
           type="button"
           onClick={handleAdd}
-          className="text-[0.78rem] font-bold rounded-xl py-2.5 px-5 bg-accent text-white border-none hover:bg-[#1d4ed8] hover:shadow-[0_4px_14px_rgba(37,99,235,0.25)] active:scale-[0.97] transition-[background-color,box-shadow,transform] cursor-pointer whitespace-nowrap"
+          className="text-[0.78rem] font-bold rounded-xl py-2.5 px-5 bg-accent text-white border-none hover:bg-ocean-600 hover:shadow-[0_4px_14px_rgba(6,182,212,0.25)] active:scale-[0.97] transition-[background-color,box-shadow,transform] cursor-pointer whitespace-nowrap"
         >
           + Add Leg
         </button>
