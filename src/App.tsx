@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import './app.css';
-import type { EngineState, FuelType, SeaLeg, PortEntry, StandbyEntry, VesselSettings, Voyage } from './types';
+import type { EngineState, FuelType, SeaLeg, PortEntry, StandbyEntry, AnchorageEntry, VesselSettings, Voyage } from './types';
 import { DEFAULT_SETTINGS } from './data/engineDefaults';
 import { computeConsumption } from './engine/consumption';
 import Header from './components/layout/Header';
@@ -13,6 +13,7 @@ import SettingsModal from './components/settings/SettingsModal';
 import SeaLegPlanner from './components/planner/SeaLegPlanner';
 import PortHoursEntry from './components/planner/PortHoursEntry';
 import StandbyHoursEntry from './components/planner/StandbyHoursEntry';
+import AnchorageHoursEntry from './components/planner/AnchorageHoursEntry';
 import VoyageSummary from './components/voyage/VoyageSummary';
 import VoyageExport from './components/voyage/VoyageExport';
 
@@ -37,8 +38,10 @@ function App() {
 
   const [legs, setLegs] = useState<SeaLeg[]>([]);
   const [portEntry, setPortEntry] = useState<PortEntry>({ hours: 0, engineCount: 1, fuelType: 'MGO' });
-  const [standbyEntry, setStandbyEntry] = useState<StandbyEntry>({ hours: 0, engineCount: 2, avgPowerMW: 6, fuelType: 'MGO' });
+  const [standbyEntry, setStandbyEntry] = useState<StandbyEntry>({ hours: 0, engineCount: 2, avgPowerMW: 14, fuelType: 'MGO' });
+  const [anchorageEntry, setAnchorageEntry] = useState<AnchorageEntry>({ hours: 0, engineCount: 2, avgPowerMW: 10, fuelType: 'MGO' });
 
+  const [cruiseName, setCruiseName] = useState('');
   const [voyageFrom, setVoyageFrom] = useState('');
   const [voyageTo, setVoyageTo] = useState('');
   const [voyageDate, setVoyageDate] = useState(getLocalDateString(new Date()));
@@ -56,13 +59,15 @@ function App() {
     setEngines((prev) => prev.map((e) => (e.id === id ? { ...e, fuel } : e)));
   };
 
-  const handleLoadVoyage = (v: Pick<Voyage, 'from' | 'to' | 'date' | 'seaLegs' | 'portEntry' | 'standbyEntry'>) => {
+  const handleLoadVoyage = (v: Pick<Voyage, 'cruiseName' | 'from' | 'to' | 'date' | 'seaLegs' | 'portEntry' | 'standbyEntry' | 'anchorageEntry'>) => {
+    setCruiseName(v.cruiseName);
     setVoyageFrom(v.from);
     setVoyageTo(v.to);
     setVoyageDate(v.date);
     setLegs(v.seaLegs);
     setPortEntry(v.portEntry);
     setStandbyEntry(v.standbyEntry);
+    setAnchorageEntry(v.anchorageEntry);
   };
 
   return (
@@ -87,19 +92,20 @@ function App() {
       <Panel tag="VOYAGE" tagStyle="voyage" title="Voyage Builder" delay={0.3}>
         <div className="p-5 space-y-5">
           <VoyageExport
-            from={voyageFrom} to={voyageTo} date={voyageDate}
-            onFromChange={setVoyageFrom} onToChange={setVoyageTo} onDateChange={setVoyageDate}
-            legs={legs} portEntry={portEntry} standbyEntry={standbyEntry}
+            cruiseName={cruiseName} from={voyageFrom} to={voyageTo} date={voyageDate}
+            onCruiseNameChange={setCruiseName} onFromChange={setVoyageFrom} onToChange={setVoyageTo} onDateChange={setVoyageDate}
+            legs={legs} portEntry={portEntry} standbyEntry={standbyEntry} anchorageEntry={anchorageEntry}
             hotelLoad={settings.hotelLoad} sfocDet={settings.sfocDet}
             onLoadVoyage={handleLoadVoyage}
           />
 
           <div className="grid grid-cols-1 gap-4 mt-4">
             <PortHoursEntry entry={portEntry} hotelLoad={settings.hotelLoad} sfocDet={settings.sfocDet} onChange={setPortEntry} />
+            <AnchorageHoursEntry entry={anchorageEntry} sfocDet={settings.sfocDet} onChange={setAnchorageEntry} />
             <StandbyHoursEntry entry={standbyEntry} sfocDet={settings.sfocDet} onChange={setStandbyEntry} />
           </div>
 
-          <VoyageSummary legs={legs} portEntry={portEntry} standbyEntry={standbyEntry} hotelLoad={settings.hotelLoad} sfocDet={settings.sfocDet} />
+          <VoyageSummary legs={legs} portEntry={portEntry} standbyEntry={standbyEntry} anchorageEntry={anchorageEntry} hotelLoad={settings.hotelLoad} sfocDet={settings.sfocDet} />
         </div>
       </Panel>
 

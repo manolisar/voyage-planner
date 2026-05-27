@@ -18,11 +18,11 @@ export default function PortHoursEntry({ entry, hotelLoad, sfocDet, onChange }: 
   const fuelId = `${baseId}-fuel`;
 
   return (
-    <div className="bg-mgo-light border border-mgo-border rounded-xl overflow-hidden relative pl-[18px] pr-5 py-4 before:content-[''] before:absolute before:top-0 before:bottom-0 before:left-0 before:w-[4px] before:bg-mgo-band shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
+    <div className="bg-port-light border border-port-border rounded-xl overflow-hidden relative pl-[18px] pr-5 py-4 before:content-[''] before:absolute before:top-0 before:bottom-0 before:left-0 before:w-[4px] before:bg-port-band shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
       <div className="font-bold text-[0.82rem] mb-3 flex items-center gap-2">
-        <span className="text-mgo text-[1rem]">⚓</span>
+        <span className="text-port text-[1rem]">⚓</span>
         <span className="text-txt">Port Hours</span>
-        <span className="font-mono text-[0.6rem] font-bold tracking-[1px] uppercase px-2 py-0.5 rounded-md bg-[rgba(4,120,87,0.1)] text-mgo">Hotel Load Only</span>
+        <span className="font-mono text-[0.6rem] font-bold tracking-[1px] uppercase px-2 py-0.5 rounded-md bg-[rgba(71,85,105,0.1)] text-port">Hotel Load Only</span>
       </div>
       <div className="grid grid-cols-4 gap-3 max-[700px]:grid-cols-2">
         <div>
@@ -38,7 +38,7 @@ export default function PortHoursEntry({ entry, hotelLoad, sfocDet, onChange }: 
             min={0}
             step={1}
             onChange={(e) => onChange({ ...entry, hours: parseFloat(e.target.value) || 0 })}
-            className="font-mono text-[0.85rem] font-semibold tabular-nums bg-white border border-bdr rounded-lg text-txt py-2 px-2.5 w-full outline-none focus:border-mgo-band focus:shadow-[0_0_0_3px_rgba(16,185,129,0.08)] hover:border-mgo-border transition-[border-color,box-shadow]"
+            className="font-mono text-[0.85rem] font-semibold tabular-nums bg-white border border-bdr rounded-lg text-txt py-2 px-2.5 w-full outline-none focus:border-port-band focus:shadow-[0_0_0_3px_rgba(71,85,105,0.10)] hover:border-port-border transition-[border-color,box-shadow]"
           />
         </div>
         <div>
@@ -55,7 +55,7 @@ export default function PortHoursEntry({ entry, hotelLoad, sfocDet, onChange }: 
             max={4}
             step={1}
             onChange={(e) => onChange({ ...entry, engineCount: parseInt(e.target.value) || 1 })}
-            className="font-mono text-[0.85rem] font-semibold tabular-nums bg-white border border-bdr rounded-lg text-txt py-2 px-2.5 w-full outline-none focus:border-mgo-band focus:shadow-[0_0_0_3px_rgba(16,185,129,0.08)] hover:border-mgo-border transition-[border-color,box-shadow]"
+            className="font-mono text-[0.85rem] font-semibold tabular-nums bg-white border border-bdr rounded-lg text-txt py-2 px-2.5 w-full outline-none focus:border-port-band focus:shadow-[0_0_0_3px_rgba(71,85,105,0.10)] hover:border-port-border transition-[border-color,box-shadow]"
           />
         </div>
         <div>
@@ -65,7 +65,7 @@ export default function PortHoursEntry({ entry, hotelLoad, sfocDet, onChange }: 
             name="portFuelType"
             value={entry.fuelType}
             onChange={(e) => onChange({ ...entry, fuelType: e.target.value as FuelType })}
-            className="font-mono text-[0.78rem] font-semibold bg-white border border-bdr rounded-lg text-txt py-2 px-2.5 w-full cursor-pointer outline-none hover:border-mgo-border transition-colors"
+            className="font-mono text-[0.78rem] font-semibold bg-white border border-bdr rounded-lg text-txt py-2 px-2.5 w-full cursor-pointer outline-none hover:border-port-border transition-colors"
           >
             <option value="MGO">MGO</option>
             <option value="HFO">HFO</option>
@@ -74,7 +74,7 @@ export default function PortHoursEntry({ entry, hotelLoad, sfocDet, onChange }: 
         </div>
         <div className="flex flex-col justify-end bg-white/60 rounded-lg p-2.5 -my-0.5">
           <div className="text-[0.6rem] font-bold tracking-[1.5px] uppercase text-dim mb-1">Consumption</div>
-          <div className="font-mono text-[1.15rem] font-extrabold tabular-nums text-mgo leading-none">{totalFuel.toFixed(1)} <span className="text-[0.6rem] font-medium text-dim">MT</span></div>
+          <div className="font-mono text-[1.15rem] font-extrabold tabular-nums text-port leading-none">{totalFuel.toFixed(1)} <span className="text-[0.6rem] font-medium text-dim">MT</span></div>
           <div className="text-[0.58rem] text-dim font-mono tabular-nums mt-1">{rate.toFixed(3)} t/hr × {entry.hours}h</div>
         </div>
       </div>

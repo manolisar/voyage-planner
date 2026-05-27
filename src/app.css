@@ -51,6 +51,22 @@
   --color-accent-band: #22d3ee;
   --color-accent-border: #A5F3FC;
 
+  /* Operating-mode palettes (NOT fuel — used by Voyage Builder cards) */
+  --color-port: #475569;          /* slate — moored / alongside */
+  --color-port-light: #F1F5F9;
+  --color-port-band: #64748B;
+  --color-port-border: #CBD5E1;
+
+  --color-anchor: #0E7490;        /* ocean-cyan deep — at anchor */
+  --color-anchor-light: #ECFEFF;
+  --color-anchor-band: #06B6D4;
+  --color-anchor-border: #A5F3FC;
+
+  --color-stby: #BE123C;          /* rose — engines warm / ready */
+  --color-stby-light: #FFF1F2;
+  --color-stby-band: #F43F5E;
+  --color-stby-border: #FECDD3;
+
   --color-danger: #dc2626;
   --color-danger-light: #fef2f2;
   --color-positive: #059669;

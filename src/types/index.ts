@@ -72,7 +72,15 @@ export interface StandbyEntry {
   fuelType: FuelType;
 }
 
+export interface AnchorageEntry {
+  hours: number;
+  engineCount: number;
+  avgPowerMW: number;
+  fuelType: FuelType;
+}
+
 export interface Voyage {
+  cruiseName: string;
   from: string;
   to: string;
   date: string;
@@ -81,6 +89,8 @@ export interface Voyage {
   portFuel: { hfo: number; mgo: number; lsfo: number; total: number };
   standbyEntry: StandbyEntry;
   standbyFuel: { hfo: number; mgo: number; lsfo: number; total: number };
+  anchorageEntry: AnchorageEntry;
+  anchorageFuel: { hfo: number; mgo: number; lsfo: number; total: number };
   totals: VoyageTotals;
 }
 

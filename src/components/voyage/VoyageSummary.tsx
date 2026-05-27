@@ -1,15 +1,16 @@
-import type { SeaLeg, PortEntry, StandbyEntry } from '../../types';
+import type { SeaLeg, PortEntry, StandbyEntry, AnchorageEntry } from '../../types';
 import { computeStaticConsumption } from '../../engine/consumption';
 
 interface Props {
   legs: SeaLeg[];
   portEntry: PortEntry;
   standbyEntry: StandbyEntry;
+  anchorageEntry: AnchorageEntry;
   hotelLoad: number;
   sfocDet: number;
 }
 
-export default function VoyageSummary({ legs, portEntry, standbyEntry, hotelLoad, sfocDet }: Props) {
+export default function VoyageSummary({ legs, portEntry, standbyEntry, anchorageEntry, hotelLoad, sfocDet }: Props) {
   const seaTotals = legs.reduce(
     (acc, l) => ({ hours: acc.hours + l.hours, distance: acc.distance + l.distance, hfo: acc.hfo + l.hfoMT, mgo: acc.mgo + l.mgoMT, lsfo: acc.lsfo + l.lsfoMT, total: acc.total + l.totalMT }),
     { hours: 0, distance: 0, hfo: 0, mgo: 0, lsfo: 0, total: 0 }
@@ -20,18 +21,22 @@ export default function VoyageSummary({ legs, portEntry, standbyEntry, hotelLoad
 
   const stbyCalc = computeStaticConsumption(standbyEntry.avgPowerMW * 1000, standbyEntry.engineCount, standbyEntry.fuelType, sfocDet);
   const stbyFuel = { hfo: stbyCalc.perFuel.hfo * standbyEntry.hours, mgo: stbyCalc.perFuel.mgo * standbyEntry.hours, lsfo: stbyCalc.perFuel.lsfo * standbyEntry.hours, total: stbyCalc.rate * standbyEntry.hours };
-  const hasStaticConstraint = portCalc.insufficient || stbyCalc.insufficient;
+
+  const anchCalc = computeStaticConsumption(anchorageEntry.avgPowerMW * 1000, anchorageEntry.engineCount, anchorageEntry.fuelType, sfocDet);
+  const anchFuel = { hfo: anchCalc.perFuel.hfo * anchorageEntry.hours, mgo: anchCalc.perFuel.mgo * anchorageEntry.hours, lsfo: anchCalc.perFuel.lsfo * anchorageEntry.hours, total: anchCalc.rate * anchorageEntry.hours };
+
+  const hasStaticConstraint = portCalc.insufficient || stbyCalc.insufficient || anchCalc.insufficient;
 
   const grand = {
-    hours: seaTotals.hours + portEntry.hours + standbyEntry.hours,
+    hours: seaTotals.hours + portEntry.hours + standbyEntry.hours + anchorageEntry.hours,
     distance: seaTotals.distance,
-    hfo: seaTotals.hfo + portFuel.hfo + stbyFuel.hfo,
-    mgo: seaTotals.mgo + portFuel.mgo + stbyFuel.mgo,
-    lsfo: seaTotals.lsfo + portFuel.lsfo + stbyFuel.lsfo,
-    total: seaTotals.total + portFuel.total + stbyFuel.total,
+    hfo: seaTotals.hfo + portFuel.hfo + stbyFuel.hfo + anchFuel.hfo,
+    mgo: seaTotals.mgo + portFuel.mgo + stbyFuel.mgo + anchFuel.mgo,
+    lsfo: seaTotals.lsfo + portFuel.lsfo + stbyFuel.lsfo + anchFuel.lsfo,
+    total: seaTotals.total + portFuel.total + stbyFuel.total + anchFuel.total,
   };
 
-  const hasData = legs.length > 0 || portEntry.hours > 0 || standbyEntry.hours > 0;
+  const hasData = legs.length > 0 || portEntry.hours > 0 || standbyEntry.hours > 0 || anchorageEntry.hours > 0;
   if (!hasData) return null;
 
   const rows = [
@@ -42,11 +47,15 @@ export default function VoyageSummary({ legs, portEntry, standbyEntry, hotelLoad
     }] : []),
     ...(portEntry.hours > 0 ? [{
       label: 'Port', hours: portEntry.hours, distance: 0, hfo: portFuel.hfo, mgo: portFuel.mgo, lsfo: portFuel.lsfo, total: portFuel.total,
-      style: 'bg-mgo-light/50',
+      style: 'bg-port-light/60',
+    }] : []),
+    ...(anchorageEntry.hours > 0 ? [{
+      label: 'Anchorage', hours: anchorageEntry.hours, distance: 0, hfo: anchFuel.hfo, mgo: anchFuel.mgo, lsfo: anchFuel.lsfo, total: anchFuel.total,
+      style: 'bg-anchor-light/60',
     }] : []),
     ...(standbyEntry.hours > 0 ? [{
       label: 'Standby', hours: standbyEntry.hours, distance: 0, hfo: stbyFuel.hfo, mgo: stbyFuel.mgo, lsfo: stbyFuel.lsfo, total: stbyFuel.total,
-      style: 'bg-hfo-light/50',
+      style: 'bg-stby-light/60',
     }] : []),
   ];
 

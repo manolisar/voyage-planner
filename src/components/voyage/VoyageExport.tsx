@@ -1,8 +1,12 @@
 import { useId, useRef } from 'react';
-import type { SeaLeg, PortEntry, StandbyEntry, Voyage } from '../../types';
+import type { SeaLeg, PortEntry, StandbyEntry, AnchorageEntry, Voyage } from '../../types';
 import { computeStaticConsumption } from '../../engine/consumption';
 
-type LoadedVoyage = Pick<Voyage, 'from' | 'to' | 'date' | 'seaLegs' | 'portEntry' | 'standbyEntry'>;
+type LoadedVoyage = Pick<Voyage, 'cruiseName' | 'from' | 'to' | 'date' | 'seaLegs' | 'portEntry' | 'standbyEntry' | 'anchorageEntry'>;
+
+function sanitizeFilename(s: string): string {
+  return s.replace(/[\\/:*?"<>|]+/g, ' ').replace(/\s+/g, ' ').trim();
+}
 
 function isFuelType(value: unknown): value is PortEntry['fuelType'] {
   return value === 'HFO' || value === 'MGO' || value === 'LSFO';
@@ -44,6 +48,19 @@ function isStandbyEntry(value: unknown): value is StandbyEntry {
   );
 }
 
+function isAnchorageEntry(value: unknown): value is AnchorageEntry {
+  if (!value || typeof value !== 'object') return false;
+  const entry = value as Record<string, unknown>;
+  return (
+    isFiniteNumber(entry.hours) &&
+    isFiniteNumber(entry.engineCount) &&
+    isFiniteNumber(entry.avgPowerMW) &&
+    isFuelType(entry.fuelType)
+  );
+}
+
+const DEFAULT_ANCHORAGE: AnchorageEntry = { hours: 0, engineCount: 2, avgPowerMW: 10, fuelType: 'MGO' };
+
 function parseVoyage(value: unknown): LoadedVoyage | null {
   if (!value || typeof value !== 'object') return null;
   const voyage = value as Record<string, unknown>;
@@ -60,38 +77,44 @@ function parseVoyage(value: unknown): LoadedVoyage | null {
   }
 
   return {
+    cruiseName: typeof voyage.cruiseName === 'string' ? voyage.cruiseName : '',
     from: voyage.from,
     to: voyage.to,
     date: voyage.date,
     seaLegs: voyage.seaLegs,
     portEntry: voyage.portEntry,
     standbyEntry: voyage.standbyEntry,
+    anchorageEntry: isAnchorageEntry(voyage.anchorageEntry) ? voyage.anchorageEntry : { ...DEFAULT_ANCHORAGE },
   };
 }
 
 interface Props {
+  cruiseName: string;
   from: string;
   to: string;
   date: string;
+  onCruiseNameChange: (v: string) => void;
   onFromChange: (v: string) => void;
   onToChange: (v: string) => void;
   onDateChange: (v: string) => void;
   legs: SeaLeg[];
   portEntry: PortEntry;
   standbyEntry: StandbyEntry;
+  anchorageEntry: AnchorageEntry;
   hotelLoad: number;
   sfocDet: number;
   onLoadVoyage: (v: LoadedVoyage) => void;
 }
 
-export default function VoyageExport({ from, to, date, onFromChange, onToChange, onDateChange, legs, portEntry, standbyEntry, hotelLoad, sfocDet, onLoadVoyage }: Props) {
+export default function VoyageExport({ cruiseName, from, to, date, onCruiseNameChange, onFromChange, onToChange, onDateChange, legs, portEntry, standbyEntry, anchorageEntry, hotelLoad, sfocDet, onLoadVoyage }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const baseId = useId();
+  const cruiseId = `${baseId}-cruise`;
   const fromId = `${baseId}-from`;
   const toId = `${baseId}-to`;
   const dateId = `${baseId}-date`;
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const seaTotals = legs.reduce(
       (acc, l) => ({ hours: acc.hours + l.hours, dist: acc.dist + l.distance, hfo: acc.hfo + l.hfoMT, mgo: acc.mgo + l.mgoMT, lsfo: acc.lsfo + l.lsfoMT, total: acc.total + l.totalMT }),
       { hours: 0, dist: 0, hfo: 0, mgo: 0, lsfo: 0, total: 0 }
@@ -100,26 +123,57 @@ export default function VoyageExport({ from, to, date, onFromChange, onToChange,
     const portFuel = { hfo: portCalc.perFuel.hfo * portEntry.hours, mgo: portCalc.perFuel.mgo * portEntry.hours, lsfo: portCalc.perFuel.lsfo * portEntry.hours, total: portCalc.rate * portEntry.hours };
     const stbyCalc = computeStaticConsumption(standbyEntry.avgPowerMW * 1000, standbyEntry.engineCount, standbyEntry.fuelType, sfocDet);
     const stbyFuel = { hfo: stbyCalc.perFuel.hfo * standbyEntry.hours, mgo: stbyCalc.perFuel.mgo * standbyEntry.hours, lsfo: stbyCalc.perFuel.lsfo * standbyEntry.hours, total: stbyCalc.rate * standbyEntry.hours };
+    const anchCalc = computeStaticConsumption(anchorageEntry.avgPowerMW * 1000, anchorageEntry.engineCount, anchorageEntry.fuelType, sfocDet);
+    const anchFuel = { hfo: anchCalc.perFuel.hfo * anchorageEntry.hours, mgo: anchCalc.perFuel.mgo * anchorageEntry.hours, lsfo: anchCalc.perFuel.lsfo * anchorageEntry.hours, total: anchCalc.rate * anchorageEntry.hours };
 
-    if (portCalc.insufficient || stbyCalc.insufficient) {
-      alert('Cannot save voyage while port or standby power exceeds the selected engine capacity.');
+    if (portCalc.insufficient || stbyCalc.insufficient || anchCalc.insufficient) {
+      alert('Cannot save voyage while port, anchorage, or standby power exceeds the selected engine capacity.');
       return;
     }
 
     const voyage: Voyage = {
-      from, to, date, seaLegs: legs, portEntry, portFuel, standbyEntry, standbyFuel: stbyFuel,
+      cruiseName, from, to, date, seaLegs: legs,
+      portEntry, portFuel,
+      standbyEntry, standbyFuel: stbyFuel,
+      anchorageEntry, anchorageFuel: anchFuel,
       totals: {
-        totalHours: seaTotals.hours + portEntry.hours + standbyEntry.hours,
+        totalHours: seaTotals.hours + portEntry.hours + standbyEntry.hours + anchorageEntry.hours,
         totalDistanceNM: seaTotals.dist,
-        hfoMT: seaTotals.hfo + portFuel.hfo + stbyFuel.hfo,
-        mgoMT: seaTotals.mgo + portFuel.mgo + stbyFuel.mgo,
-        lsfoMT: seaTotals.lsfo + portFuel.lsfo + stbyFuel.lsfo,
-        totalFuelMT: seaTotals.total + portFuel.total + stbyFuel.total,
+        hfoMT: seaTotals.hfo + portFuel.hfo + stbyFuel.hfo + anchFuel.hfo,
+        mgoMT: seaTotals.mgo + portFuel.mgo + stbyFuel.mgo + anchFuel.mgo,
+        lsfoMT: seaTotals.lsfo + portFuel.lsfo + stbyFuel.lsfo + anchFuel.lsfo,
+        totalFuelMT: seaTotals.total + portFuel.total + stbyFuel.total + anchFuel.total,
       },
     };
 
-    const filename = `${from || 'Origin'} - ${to || 'Destination'} ${date}.json`;
-    const blob = new Blob([JSON.stringify(voyage, null, 2)], { type: 'application/json' });
+    const safeName = sanitizeFilename(cruiseName) || 'Voyage';
+    const filename = `${safeName} ${date}.json`;
+    const json = JSON.stringify(voyage, null, 2);
+
+    type FsPickerOptions = {
+      suggestedName?: string;
+      types?: { description?: string; accept: Record<string, string[]> }[];
+    };
+    type FsWritable = { write(data: string): Promise<void>; close(): Promise<void> };
+    type FsHandle = { createWritable(): Promise<FsWritable> };
+    const picker = (window as unknown as { showSaveFilePicker?: (opts: FsPickerOptions) => Promise<FsHandle> }).showSaveFilePicker;
+    if (typeof picker === 'function') {
+      try {
+        const handle = await picker({
+          suggestedName: filename,
+          types: [{ description: 'Voyage JSON', accept: { 'application/json': ['.json'] } }],
+        });
+        const writable = await handle.createWritable();
+        await writable.write(json);
+        await writable.close();
+        return;
+      } catch (err) {
+        if ((err as DOMException)?.name === 'AbortError') return;
+        // Fall through to anchor download on any other failure
+      }
+    }
+
+    const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url; a.download = filename; a.click();
@@ -143,6 +197,20 @@ export default function VoyageExport({ from, to, date, onFromChange, onToChange,
 
   return (
     <div className="space-y-4">
+      <div>
+        <label htmlFor={cruiseId} className="block text-[0.65rem] font-bold tracking-[1.5px] uppercase text-dim mb-1.5">Cruise Name</label>
+        <input
+          id={cruiseId}
+          name="cruiseName"
+          type="text"
+          autoComplete="off"
+          spellCheck={false}
+          value={cruiseName}
+          onChange={(e) => onCruiseNameChange(e.target.value)}
+          placeholder="e.g. British Isles & Scotland"
+          className="text-[0.85rem] font-semibold bg-white border border-bdr rounded-xl text-txt py-2.5 px-3 w-full outline-none focus:border-accent-band focus:shadow-[0_0_0_3px_rgba(6,182,212,0.15)] hover:border-faint transition-[border-color,box-shadow]"
+        />
+      </div>
       <div className="grid grid-cols-3 gap-3 max-[600px]:grid-cols-1">
         <div>
           <label htmlFor={fromId} className="block text-[0.65rem] font-bold tracking-[1.5px] uppercase text-dim mb-1.5">From</label>
