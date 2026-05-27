@@ -20,7 +20,7 @@ export default function PortHoursEntry({ entry, hotelLoad, sfocDet, onChange }: 
   return (
     <div className="bg-port-light border border-port-border rounded-xl overflow-hidden relative pl-[18px] pr-5 py-4 before:content-[''] before:absolute before:top-0 before:bottom-0 before:left-0 before:w-[4px] before:bg-port-band shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
       <div className="font-bold text-[0.82rem] mb-3 flex items-center gap-2">
-        <span className="text-port text-[1rem]">⚓</span>
+        <span className="text-port text-[1rem]">🚢</span>
         <span className="text-txt">Port Hours</span>
         <span className="font-mono text-[0.6rem] font-bold tracking-[1px] uppercase px-2 py-0.5 rounded-md bg-[rgba(71,85,105,0.1)] text-port">Hotel Load Only</span>
       </div>

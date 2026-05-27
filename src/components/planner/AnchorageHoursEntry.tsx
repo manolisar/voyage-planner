@@ -21,7 +21,7 @@ export default function AnchorageHoursEntry({ entry, sfocDet, onChange }: Props)
   return (
     <div className="bg-anchor-light border border-anchor-border rounded-xl overflow-hidden relative pl-[18px] pr-5 py-4 before:content-[''] before:absolute before:top-0 before:bottom-0 before:left-0 before:w-[4px] before:bg-anchor-band shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
       <div className="font-bold text-[0.82rem] mb-3 flex items-center gap-2">
-        <span className="text-anchor text-[1rem]">🛟</span>
+        <span className="text-anchor text-[1rem]">⚓</span>
         <span className="text-txt">Anchorage</span>
         <span className="font-mono text-[0.6rem] font-bold tracking-[1px] uppercase px-2 py-0.5 rounded-md bg-[rgba(14,116,144,0.1)] text-anchor">Tender Port · Thrusters · Azipods</span>
       </div>
