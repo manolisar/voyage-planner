@@ -1,18 +1,60 @@
 import { useId, useState } from 'react';
-import type { SeaLeg, CalculationResult } from '../../types';
+import type { SeaLeg, CalculationResult, VesselSettings, LegAssumptions } from '../../types';
 
 interface Props {
   legs: SeaLeg[];
   currentResult: CalculationResult;
   speed: number;
+  settings: VesselSettings;
   onAddLeg: (leg: SeaLeg) => void;
+  onUpdateLeg: (leg: SeaLeg) => void;
   onRemoveLeg: (id: string) => void;
   onClearLegs: () => void;
 }
 
-export default function SeaLegPlanner({ legs, currentResult, speed, onAddLeg, onRemoveLeg, onClearLegs }: Props) {
+const STALE_COLOR = '#f59e0b';
+
+function engSig(a: LegAssumptions): string {
+  const parts: string[] = [];
+  if (a.hfoRunning) parts.push(`${a.hfoRunning}H`);
+  if (a.mgoRunning) parts.push(`${a.mgoRunning}M`);
+  if (a.lsfoRunning) parts.push(`${a.lsfoRunning}L`);
+  return parts.length ? parts.join('·') : `${a.numRunning} DG`;
+}
+
+function assumptionsTitle(a: LegAssumptions, legSpeed: number): string {
+  return `Captured setup — Speed ${legSpeed.toFixed(1)} kn · Sea margin ${a.seaMargin}% · SFOC det ${a.sfocDet}% · Hotel ${a.hotelLoad} kW · Prop-aux ${a.propAux} kW · ${engSig(a)}`;
+}
+
+export default function SeaLegPlanner({ legs, currentResult, speed, settings, onAddLeg, onUpdateLeg, onRemoveLeg, onClearLegs }: Props) {
   const [hours, setHours] = useState(24);
   const hoursId = useId();
+
+  const currentAssumptions: LegAssumptions = {
+    seaMargin: settings.seaMargin,
+    sfocDet: settings.sfocDet,
+    hotelLoad: settings.hotelLoad,
+    propAux: settings.propAux,
+    hfoRunning: currentResult.hfoRunning,
+    mgoRunning: currentResult.mgoRunning,
+    lsfoRunning: currentResult.lsfoRunning,
+    numRunning: currentResult.numRunning,
+  };
+
+  const isStale = (leg: SeaLeg): boolean => {
+    const a = leg.assumptions;
+    if (!a) return false;
+    return (
+      leg.speed !== speed ||
+      a.seaMargin !== currentAssumptions.seaMargin ||
+      a.sfocDet !== currentAssumptions.sfocDet ||
+      a.hotelLoad !== currentAssumptions.hotelLoad ||
+      a.propAux !== currentAssumptions.propAux ||
+      a.hfoRunning !== currentAssumptions.hfoRunning ||
+      a.mgoRunning !== currentAssumptions.mgoRunning ||
+      a.lsfoRunning !== currentAssumptions.lsfoRunning
+    );
+  };
 
   const handleClear = () => {
     if (legs.length === 0) return;
@@ -33,6 +75,21 @@ export default function SeaLegPlanner({ legs, currentResult, speed, onAddLeg, on
       mgoMT: r.mgoRate * hours,
       lsfoMT: r.lsfoRate * hours,
       totalMT: r.totalRate * hours,
+      assumptions: { ...currentAssumptions },
+    });
+  };
+
+  const handleRecalc = (leg: SeaLeg) => {
+    const r = currentResult;
+    onUpdateLeg({
+      ...leg,
+      speed,
+      distance: speed * leg.hours,
+      hfoMT: r.hfoRate * leg.hours,
+      mgoMT: r.mgoRate * leg.hours,
+      lsfoMT: r.lsfoRate * leg.hours,
+      totalMT: r.totalRate * leg.hours,
+      assumptions: { ...currentAssumptions },
     });
   };
 
@@ -47,6 +104,8 @@ export default function SeaLegPlanner({ legs, currentResult, speed, onAddLeg, on
     }),
     { hours: 0, distance: 0, hfo: 0, mgo: 0, lsfo: 0, total: 0 }
   );
+
+  const staleCount = legs.filter(isStale).length;
 
   return (
     <div>
@@ -89,44 +148,88 @@ export default function SeaLegPlanner({ legs, currentResult, speed, onAddLeg, on
         </div>
       ) : (
         <>
+          {/* Snapshot explainer */}
+          <div className="mx-5 mb-3 rounded-lg border border-bdr bg-surface-2/60 px-3.5 py-2 text-[0.68rem] text-dim leading-relaxed">
+            Each leg is a <strong className="text-txt font-semibold">snapshot</strong> of the setup when it was added — speed, engines, sea margin, SFOC, hotel &amp; prop-aux are frozen into its totals. Adjust the panel above, then press <span className="font-mono font-bold text-txt">↻</span> on a leg to update just that one.
+            {staleCount > 0 && (
+              <>
+                {' '}
+                <span className="inline-block w-1.5 h-1.5 rounded-full align-middle mr-1" style={{ backgroundColor: STALE_COLOR }} />
+                <strong style={{ color: '#b45309' }}>{staleCount} leg{staleCount === 1 ? '' : 's'}</strong> no longer match the current panel.
+              </>
+            )}
+          </div>
+
           <table className="w-full border-collapse text-[0.82rem]">
-            <caption className="sr-only">Planned sea legs with hours, distance, and fuel consumption per fuel type.</caption>
+            <caption className="sr-only">Planned sea legs with hours, distance, and fuel consumption per fuel type. Each leg stores the setup assumptions captured when it was added.</caption>
             <thead className="bg-surface-2">
               <tr>
-                {['Leg', 'Speed (kn)', 'Hours', 'Distance (nm)', 'HFO (MT)', 'MGO (MT)', 'LSFO (MT)', 'Total (MT)', ''].map((h, i) => (
+                {['Leg', 'Speed (kn) / Setup', 'Hours', 'Distance (nm)', 'HFO (MT)', 'MGO (MT)', 'LSFO (MT)', 'Total (MT)', ''].map((h, i) => (
                   <th
                     key={i}
                     scope="col"
-                    className={`py-2 px-4 text-[0.7rem] font-bold tracking-[1.2px] uppercase text-dim border-b border-bdr ${i === 0 ? 'text-center' : i >= 2 ? 'text-right' : 'text-left'} ${i === 8 ? 'w-10 text-center' : ''}`}
+                    className={`py-2 px-4 text-[0.7rem] font-bold tracking-[1.2px] uppercase text-dim border-b border-bdr ${i === 0 ? 'text-center' : i >= 2 ? 'text-right' : 'text-left'} ${i === 8 ? 'w-[72px] text-center' : ''}`}
                   >
-                    {i === 8 ? <span className="sr-only">Remove leg</span> : h}
+                    {i === 8 ? <span className="sr-only">Leg actions</span> : h}
                   </th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {legs.map((leg, i) => (
-                <tr key={leg.id} className="hover:bg-accent-light/30 transition-colors">
-                  <td className="py-2.5 px-4 border-b border-bdr text-center font-bold text-accent tabular-nums">{i + 1}</td>
-                  <td className="py-2.5 px-4 border-b border-bdr font-mono tabular-nums">{leg.speed.toFixed(1)}</td>
-                  <td className="py-2.5 px-4 border-b border-bdr text-right font-mono tabular-nums">{leg.hours.toFixed(1)}</td>
-                  <td className="py-2.5 px-4 border-b border-bdr text-right font-mono tabular-nums">{leg.distance.toFixed(0)}</td>
-                  <td className="py-2.5 px-4 border-b border-bdr text-right font-mono tabular-nums text-hfo">{leg.hfoMT.toFixed(1)}</td>
-                  <td className="py-2.5 px-4 border-b border-bdr text-right font-mono tabular-nums text-mgo">{leg.mgoMT.toFixed(1)}</td>
-                  <td className="py-2.5 px-4 border-b border-bdr text-right font-mono tabular-nums text-lsfo">{leg.lsfoMT.toFixed(1)}</td>
-                  <td className="py-2.5 px-4 border-b border-bdr text-right font-mono tabular-nums font-bold">{leg.totalMT.toFixed(1)}</td>
-                  <td className="py-2.5 px-4 border-b border-bdr text-center">
-                    <button
-                      type="button"
-                      onClick={() => onRemoveLeg(leg.id)}
-                      aria-label={`Remove leg ${i + 1}`}
-                      className="bg-transparent border-none text-danger cursor-pointer text-[1em] px-1.5 py-0.5 rounded hover:bg-danger-light transition-colors"
-                    >
-                      ✕
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {legs.map((leg, i) => {
+                const stale = isStale(leg);
+                return (
+                  <tr key={leg.id} className="hover:bg-accent-light/30 transition-colors">
+                    <td className="py-2.5 px-4 border-b border-bdr text-center font-bold text-accent tabular-nums align-top">{i + 1}</td>
+                    <td className="py-2.5 px-4 border-b border-bdr font-mono tabular-nums align-top">
+                      <div>{leg.speed.toFixed(1)}</div>
+                      {leg.assumptions && (
+                        <div
+                          className="font-sans tracking-normal text-[0.6rem] text-dim flex items-center gap-1 mt-0.5"
+                          title={assumptionsTitle(leg.assumptions, leg.speed)}
+                        >
+                          <span>{engSig(leg.assumptions)}</span>
+                          <span className="text-faint">·</span>
+                          <span>SM {leg.assumptions.seaMargin}%</span>
+                          {stale && (
+                            <span
+                              className="inline-block w-1.5 h-1.5 rounded-full shrink-0"
+                              style={{ backgroundColor: STALE_COLOR }}
+                              aria-label="Setup changed since this leg was added"
+                            />
+                          )}
+                        </div>
+                      )}
+                    </td>
+                    <td className="py-2.5 px-4 border-b border-bdr text-right font-mono tabular-nums align-top">{leg.hours.toFixed(1)}</td>
+                    <td className="py-2.5 px-4 border-b border-bdr text-right font-mono tabular-nums align-top">{leg.distance.toFixed(0)}</td>
+                    <td className="py-2.5 px-4 border-b border-bdr text-right font-mono tabular-nums text-hfo align-top">{leg.hfoMT.toFixed(1)}</td>
+                    <td className="py-2.5 px-4 border-b border-bdr text-right font-mono tabular-nums text-mgo align-top">{leg.mgoMT.toFixed(1)}</td>
+                    <td className="py-2.5 px-4 border-b border-bdr text-right font-mono tabular-nums text-lsfo align-top">{leg.lsfoMT.toFixed(1)}</td>
+                    <td className="py-2.5 px-4 border-b border-bdr text-right font-mono tabular-nums font-bold align-top">{leg.totalMT.toFixed(1)}</td>
+                    <td className="py-2.5 px-4 border-b border-bdr text-center whitespace-nowrap align-top">
+                      <button
+                        type="button"
+                        onClick={() => handleRecalc(leg)}
+                        aria-label={`Update leg ${i + 1} to current setup`}
+                        title={stale ? 'Setup changed — update this leg to the current panel setup' : 'Recalculate this leg to the current panel setup'}
+                        className={`bg-transparent border-none cursor-pointer text-[1em] px-1.5 py-0.5 rounded transition-colors ${stale ? 'hover:bg-[#fef3c7]' : 'text-dim hover:bg-surface-2'}`}
+                        style={stale ? { color: '#d97706' } : undefined}
+                      >
+                        ↻
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onRemoveLeg(leg.id)}
+                        aria-label={`Remove leg ${i + 1}`}
+                        className="bg-transparent border-none text-danger cursor-pointer text-[1em] px-1.5 py-0.5 rounded hover:bg-danger-light transition-colors"
+                      >
+                        ✕
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
             <tfoot>
               <tr className="font-extrabold">

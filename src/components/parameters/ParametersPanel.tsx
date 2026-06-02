@@ -41,7 +41,7 @@ function Input({ label, hint, name, value, onChange, min, max, step }: {
 export default function ParametersPanel({ speed, settings, onSpeedChange, onSettingsChange }: Props) {
   return (
     <Panel tag="INPUT" tagStyle="param" title="Parameters" delay={0.06}>
-      <div className="grid grid-cols-4 gap-4 p-5 max-[700px]:grid-cols-2 max-[480px]:grid-cols-1">
+      <div className="grid grid-cols-5 gap-4 p-5 max-[900px]:grid-cols-3 max-[700px]:grid-cols-2 max-[480px]:grid-cols-1">
         <Input label="Vessel Speed" hint="knots (0–25)" name="speed" value={speed}
           onChange={onSpeedChange} min={0} max={25} step={0.1} />
         <Input label="Hotel Load" hint="kW — accommodation & services load" name="hotelLoad" value={settings.hotelLoad}
@@ -50,6 +50,8 @@ export default function ParametersPanel({ speed, settings, onSpeedChange, onSett
           onChange={(v) => onSettingsChange({ ...settings, seaMargin: v })} min={-10} max={20} step={0.5} />
         <Input label="SFOC Deterioration" hint="% (0–5)" name="sfocDet" value={settings.sfocDet}
           onChange={(v) => onSettingsChange({ ...settings, sfocDet: v })} min={0} max={5} step={0.1} />
+        <Input label="Prop Auxiliaries" hint="kW — bow thruster, steering (underway)" name="propAux" value={settings.propAux}
+          onChange={(v) => onSettingsChange({ ...settings, propAux: v })} min={0} max={5000} step={100} />
       </div>
     </Panel>
   );

@@ -1,6 +1,6 @@
 import { useId } from 'react';
 import type { PortEntry, FuelType } from '../../types';
-import { computeStaticConsumption } from '../../engine/consumption';
+import { computePortConsumption, BOILER_RATE_MT_PER_HR } from '../../engine/consumption';
 
 interface Props {
   entry: PortEntry;
@@ -10,8 +10,7 @@ interface Props {
 }
 
 export default function PortHoursEntry({ entry, hotelLoad, sfocDet, onChange }: Props) {
-  const { rate, insufficient, availablePowerKW } = computeStaticConsumption(hotelLoad, entry.engineCount, entry.fuelType, sfocDet);
-  const totalFuel = rate * entry.hours;
+  const { dgRate, boilerMT, totalMT, insufficient, availablePowerKW } = computePortConsumption(hotelLoad, entry.engineCount, entry.fuelType, sfocDet, entry.hours);
   const baseId = useId();
   const hoursId = `${baseId}-hours`;
   const enginesId = `${baseId}-engines`;
@@ -22,7 +21,7 @@ export default function PortHoursEntry({ entry, hotelLoad, sfocDet, onChange }: 
       <div className="font-bold text-[0.82rem] mb-3 flex items-center gap-2">
         <span className="text-port text-[1rem]">🚢</span>
         <span className="text-txt">Port Hours</span>
-        <span className="font-mono text-[0.6rem] font-bold tracking-[1px] uppercase px-2 py-0.5 rounded-md bg-[rgba(71,85,105,0.1)] text-port">Hotel Load Only</span>
+        <span className="font-mono text-[0.6rem] font-bold tracking-[1px] uppercase px-2 py-0.5 rounded-md bg-[rgba(71,85,105,0.1)] text-port">Hotel Load + Boiler</span>
       </div>
       <div className="grid grid-cols-4 gap-3 max-[700px]:grid-cols-2">
         <div>
@@ -74,8 +73,9 @@ export default function PortHoursEntry({ entry, hotelLoad, sfocDet, onChange }: 
         </div>
         <div className="flex flex-col justify-end bg-white/60 rounded-lg p-2.5 -my-0.5">
           <div className="text-[0.6rem] font-bold tracking-[1.5px] uppercase text-dim mb-1">Consumption</div>
-          <div className="font-mono text-[1.15rem] font-extrabold tabular-nums text-port leading-none">{totalFuel.toFixed(1)} <span className="text-[0.6rem] font-medium text-dim">MT</span></div>
-          <div className="text-[0.58rem] text-dim font-mono tabular-nums mt-1">{rate.toFixed(3)} t/hr × {entry.hours}h</div>
+          <div className="font-mono text-[1.15rem] font-extrabold tabular-nums text-port leading-none">{totalMT.toFixed(1)} <span className="text-[0.6rem] font-medium text-dim">MT</span></div>
+          <div className="text-[0.58rem] text-dim font-mono tabular-nums mt-1">DG {dgRate.toFixed(3)} t/hr × {entry.hours}h</div>
+          <div className="text-[0.58rem] text-mgo font-mono tabular-nums">+ boiler {BOILER_RATE_MT_PER_HR.toFixed(2)} t/hr = {boilerMT.toFixed(1)} MT MGO</div>
         </div>
       </div>
       {insufficient && (

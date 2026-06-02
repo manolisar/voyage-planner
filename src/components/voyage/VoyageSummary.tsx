@@ -1,5 +1,5 @@
 import type { SeaLeg, PortEntry, StandbyEntry, AnchorageEntry } from '../../types';
-import { computeStaticConsumption } from '../../engine/consumption';
+import { computeStaticConsumption, computePortConsumption } from '../../engine/consumption';
 
 interface Props {
   legs: SeaLeg[];
@@ -16,8 +16,8 @@ export default function VoyageSummary({ legs, portEntry, standbyEntry, anchorage
     { hours: 0, distance: 0, hfo: 0, mgo: 0, lsfo: 0, total: 0 }
   );
 
-  const portCalc = computeStaticConsumption(hotelLoad, portEntry.engineCount, portEntry.fuelType, sfocDet);
-  const portFuel = { hfo: portCalc.perFuel.hfo * portEntry.hours, mgo: portCalc.perFuel.mgo * portEntry.hours, lsfo: portCalc.perFuel.lsfo * portEntry.hours, total: portCalc.rate * portEntry.hours };
+  const portCalc = computePortConsumption(hotelLoad, portEntry.engineCount, portEntry.fuelType, sfocDet, portEntry.hours);
+  const portFuel = { hfo: portCalc.perFuelMT.hfo, mgo: portCalc.perFuelMT.mgo, lsfo: portCalc.perFuelMT.lsfo, total: portCalc.totalMT };
 
   const stbyCalc = computeStaticConsumption(standbyEntry.avgPowerMW * 1000, standbyEntry.engineCount, standbyEntry.fuelType, sfocDet);
   const stbyFuel = { hfo: stbyCalc.perFuel.hfo * standbyEntry.hours, mgo: stbyCalc.perFuel.mgo * standbyEntry.hours, lsfo: stbyCalc.perFuel.lsfo * standbyEntry.hours, total: stbyCalc.rate * standbyEntry.hours };

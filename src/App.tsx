@@ -15,6 +15,7 @@ import PortHoursEntry from './components/planner/PortHoursEntry';
 import StandbyHoursEntry from './components/planner/StandbyHoursEntry';
 import AnchorageHoursEntry from './components/planner/AnchorageHoursEntry';
 import VoyageSummary from './components/voyage/VoyageSummary';
+import VoyageMeta from './components/voyage/VoyageMeta';
 import VoyageExport from './components/voyage/VoyageExport';
 
 function getLocalDateString(now: Date): string {
@@ -82,8 +83,9 @@ function App() {
       {/* Voyage Builder */}
       <Panel tag="PLAN" tagStyle="legs" title="Cruise Leg Planner" delay={0.24}>
         <SeaLegPlanner
-          legs={legs} currentResult={result} speed={speed}
+          legs={legs} currentResult={result} speed={speed} settings={settings}
           onAddLeg={(leg) => setLegs((prev) => [...prev, leg])}
+          onUpdateLeg={(leg) => setLegs((prev) => prev.map((l) => (l.id === leg.id ? leg : l)))}
           onRemoveLeg={(id) => setLegs((prev) => prev.filter((l) => l.id !== id))}
           onClearLegs={() => setLegs([])}
         />
@@ -91,12 +93,9 @@ function App() {
 
       <Panel tag="VOYAGE" tagStyle="voyage" title="Voyage Builder" delay={0.3}>
         <div className="p-5 space-y-5">
-          <VoyageExport
+          <VoyageMeta
             cruiseName={cruiseName} from={voyageFrom} to={voyageTo} date={voyageDate}
             onCruiseNameChange={setCruiseName} onFromChange={setVoyageFrom} onToChange={setVoyageTo} onDateChange={setVoyageDate}
-            legs={legs} portEntry={portEntry} standbyEntry={standbyEntry} anchorageEntry={anchorageEntry}
-            hotelLoad={settings.hotelLoad} sfocDet={settings.sfocDet}
-            onLoadVoyage={handleLoadVoyage}
           />
 
           <div className="grid grid-cols-1 gap-4 mt-4">
@@ -106,6 +105,13 @@ function App() {
           </div>
 
           <VoyageSummary legs={legs} portEntry={portEntry} standbyEntry={standbyEntry} anchorageEntry={anchorageEntry} hotelLoad={settings.hotelLoad} sfocDet={settings.sfocDet} />
+
+          <VoyageExport
+            cruiseName={cruiseName} from={voyageFrom} to={voyageTo} date={voyageDate}
+            legs={legs} portEntry={portEntry} standbyEntry={standbyEntry} anchorageEntry={anchorageEntry}
+            hotelLoad={settings.hotelLoad} sfocDet={settings.sfocDet}
+            onLoadVoyage={handleLoadVoyage}
+          />
         </div>
       </Panel>
 

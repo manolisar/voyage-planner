@@ -1,6 +1,6 @@
-import { useId, useRef } from 'react';
+import { useRef } from 'react';
 import type { SeaLeg, PortEntry, StandbyEntry, AnchorageEntry, Voyage } from '../../types';
-import { computeStaticConsumption } from '../../engine/consumption';
+import { computeStaticConsumption, computePortConsumption } from '../../engine/consumption';
 
 type LoadedVoyage = Pick<Voyage, 'cruiseName' | 'from' | 'to' | 'date' | 'seaLegs' | 'portEntry' | 'standbyEntry' | 'anchorageEntry'>;
 
@@ -93,10 +93,6 @@ interface Props {
   from: string;
   to: string;
   date: string;
-  onCruiseNameChange: (v: string) => void;
-  onFromChange: (v: string) => void;
-  onToChange: (v: string) => void;
-  onDateChange: (v: string) => void;
   legs: SeaLeg[];
   portEntry: PortEntry;
   standbyEntry: StandbyEntry;
@@ -106,21 +102,16 @@ interface Props {
   onLoadVoyage: (v: LoadedVoyage) => void;
 }
 
-export default function VoyageExport({ cruiseName, from, to, date, onCruiseNameChange, onFromChange, onToChange, onDateChange, legs, portEntry, standbyEntry, anchorageEntry, hotelLoad, sfocDet, onLoadVoyage }: Props) {
+export default function VoyageExport({ cruiseName, from, to, date, legs, portEntry, standbyEntry, anchorageEntry, hotelLoad, sfocDet, onLoadVoyage }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
-  const baseId = useId();
-  const cruiseId = `${baseId}-cruise`;
-  const fromId = `${baseId}-from`;
-  const toId = `${baseId}-to`;
-  const dateId = `${baseId}-date`;
 
   const handleSave = async () => {
     const seaTotals = legs.reduce(
       (acc, l) => ({ hours: acc.hours + l.hours, dist: acc.dist + l.distance, hfo: acc.hfo + l.hfoMT, mgo: acc.mgo + l.mgoMT, lsfo: acc.lsfo + l.lsfoMT, total: acc.total + l.totalMT }),
       { hours: 0, dist: 0, hfo: 0, mgo: 0, lsfo: 0, total: 0 }
     );
-    const portCalc = computeStaticConsumption(hotelLoad, portEntry.engineCount, portEntry.fuelType, sfocDet);
-    const portFuel = { hfo: portCalc.perFuel.hfo * portEntry.hours, mgo: portCalc.perFuel.mgo * portEntry.hours, lsfo: portCalc.perFuel.lsfo * portEntry.hours, total: portCalc.rate * portEntry.hours };
+    const portCalc = computePortConsumption(hotelLoad, portEntry.engineCount, portEntry.fuelType, sfocDet, portEntry.hours);
+    const portFuel = { hfo: portCalc.perFuelMT.hfo, mgo: portCalc.perFuelMT.mgo, lsfo: portCalc.perFuelMT.lsfo, total: portCalc.totalMT };
     const stbyCalc = computeStaticConsumption(standbyEntry.avgPowerMW * 1000, standbyEntry.engineCount, standbyEntry.fuelType, sfocDet);
     const stbyFuel = { hfo: stbyCalc.perFuel.hfo * standbyEntry.hours, mgo: stbyCalc.perFuel.mgo * standbyEntry.hours, lsfo: stbyCalc.perFuel.lsfo * standbyEntry.hours, total: stbyCalc.rate * standbyEntry.hours };
     const anchCalc = computeStaticConsumption(anchorageEntry.avgPowerMW * 1000, anchorageEntry.engineCount, anchorageEntry.fuelType, sfocDet);
@@ -195,77 +186,56 @@ export default function VoyageExport({ cruiseName, from, to, date, onCruiseNameC
     e.target.value = '';
   };
 
+  // Lightweight forecast tally for the export confirmation line.
+  const seaT = legs.reduce((acc, l) => ({ hours: acc.hours + l.hours, total: acc.total + l.totalMT }), { hours: 0, total: 0 });
+  const portC = computePortConsumption(hotelLoad, portEntry.engineCount, portEntry.fuelType, sfocDet, portEntry.hours);
+  const stbyC = computeStaticConsumption(standbyEntry.avgPowerMW * 1000, standbyEntry.engineCount, standbyEntry.fuelType, sfocDet);
+  const anchC = computeStaticConsumption(anchorageEntry.avgPowerMW * 1000, anchorageEntry.engineCount, anchorageEntry.fuelType, sfocDet);
+  const totalHours = seaT.hours + portEntry.hours + standbyEntry.hours + anchorageEntry.hours;
+  const totalMT = seaT.total + portC.totalMT + stbyC.rate * standbyEntry.hours + anchC.rate * anchorageEntry.hours;
+  const segments = (legs.length > 0 ? 1 : 0) + (portEntry.hours > 0 ? 1 : 0) + (anchorageEntry.hours > 0 ? 1 : 0) + (standbyEntry.hours > 0 ? 1 : 0);
+  const hasData = segments > 0;
+
   return (
-    <div className="space-y-4">
-      <div>
-        <label htmlFor={cruiseId} className="block text-[0.65rem] font-bold tracking-[1.5px] uppercase text-dim mb-1.5">Cruise Name</label>
-        <input
-          id={cruiseId}
-          name="cruiseName"
-          type="text"
-          autoComplete="off"
-          spellCheck={false}
-          value={cruiseName}
-          onChange={(e) => onCruiseNameChange(e.target.value)}
-          placeholder="e.g. British Isles & Scotland"
-          className="text-[0.85rem] font-semibold bg-white border border-bdr rounded-xl text-txt py-2.5 px-3 w-full outline-none focus:border-accent-band focus:shadow-[0_0_0_3px_rgba(6,182,212,0.15)] hover:border-faint transition-[border-color,box-shadow]"
-        />
+    <div className="mt-5 pt-5 border-t border-bdr space-y-3">
+      <div className="text-[0.7rem] font-bold tracking-[1.5px] uppercase text-dim flex items-center gap-2">
+        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+        Export Forecast
       </div>
-      <div className="grid grid-cols-3 gap-3 max-[600px]:grid-cols-1">
-        <div>
-          <label htmlFor={fromId} className="block text-[0.65rem] font-bold tracking-[1.5px] uppercase text-dim mb-1.5">From</label>
-          <input
-            id={fromId}
-            name="voyageFrom"
-            type="text"
-            autoComplete="off"
-            spellCheck={false}
-            value={from}
-            onChange={(e) => onFromChange(e.target.value)}
-            placeholder="e.g. Piraeus"
-            className="text-[0.85rem] font-semibold bg-white border border-bdr rounded-xl text-txt py-2.5 px-3 w-full outline-none focus:border-accent-band focus:shadow-[0_0_0_3px_rgba(6,182,212,0.15)] hover:border-faint transition-[border-color,box-shadow]"
-          />
-        </div>
-        <div>
-          <label htmlFor={toId} className="block text-[0.65rem] font-bold tracking-[1.5px] uppercase text-dim mb-1.5">To</label>
-          <input
-            id={toId}
-            name="voyageTo"
-            type="text"
-            autoComplete="off"
-            spellCheck={false}
-            value={to}
-            onChange={(e) => onToChange(e.target.value)}
-            placeholder="e.g. Rotterdam"
-            className="text-[0.85rem] font-semibold bg-white border border-bdr rounded-xl text-txt py-2.5 px-3 w-full outline-none focus:border-accent-band focus:shadow-[0_0_0_3px_rgba(6,182,212,0.15)] hover:border-faint transition-[border-color,box-shadow]"
-          />
-        </div>
-        <div>
-          <label htmlFor={dateId} className="block text-[0.65rem] font-bold tracking-[1.5px] uppercase text-dim mb-1.5">Date</label>
-          <input
-            id={dateId}
-            name="voyageDate"
-            type="date"
-            value={date}
-            onChange={(e) => onDateChange(e.target.value)}
-            className="font-mono text-[0.82rem] font-semibold tabular-nums bg-white border border-bdr rounded-xl text-txt py-2.5 px-3 w-full outline-none focus:border-accent-band focus:shadow-[0_0_0_3px_rgba(6,182,212,0.15)] hover:border-faint transition-[border-color,box-shadow]"
-          />
-        </div>
+
+      <div className="rounded-xl border border-bdr bg-surface-2/60 px-4 py-2.5 text-[0.72rem] text-dim flex flex-wrap items-center gap-x-2 gap-y-1">
+        {hasData ? (
+          <>
+            <span className="font-semibold text-txt">{cruiseName || 'Untitled forecast'}</span>
+            <span className="text-faint">·</span>
+            <span className="font-mono tabular-nums">{legs.length} leg{legs.length === 1 ? '' : 's'}</span>
+            <span className="text-faint">·</span>
+            <span className="font-mono tabular-nums">{segments} segment{segments === 1 ? '' : 's'}</span>
+            <span className="text-faint">·</span>
+            <span className="font-mono tabular-nums">{totalHours.toFixed(1)} h</span>
+            <span className="text-faint">·</span>
+            <span className="font-mono tabular-nums font-bold text-accent">{totalMT.toFixed(1)} MT</span>
+          </>
+        ) : (
+          <span>Add sea legs or port / anchorage / standby hours above to build a forecast before exporting.</span>
+        )}
       </div>
+
       <div className="flex gap-2.5">
         <button
           type="button"
           onClick={handleSave}
-          className="text-[0.75rem] font-bold rounded-xl py-2.5 px-5 bg-accent text-white border-none hover:bg-ocean-600 hover:shadow-[0_4px_14px_rgba(6,182,212,0.25)] active:scale-[0.97] transition-[background-color,box-shadow,transform] cursor-pointer whitespace-nowrap"
+          disabled={!hasData}
+          className="text-[0.75rem] font-bold rounded-xl py-2.5 px-5 bg-accent text-white border-none hover:bg-ocean-600 hover:shadow-[0_4px_14px_rgba(6,182,212,0.25)] active:scale-[0.97] transition-[background-color,box-shadow,transform] cursor-pointer whitespace-nowrap disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-accent disabled:hover:shadow-none disabled:active:scale-100"
         >
-          Save Voyage
+          Export Forecast JSON
         </button>
         <button
           type="button"
           onClick={() => fileRef.current?.click()}
           className="text-[0.75rem] font-bold rounded-xl py-2.5 px-5 bg-white text-dim border border-bdr hover:border-accent-band hover:text-accent hover:shadow-[0_2px_8px_rgba(6,182,212,0.15)] transition-[color,border-color,box-shadow] cursor-pointer whitespace-nowrap"
         >
-          Load Voyage
+          Load Forecast
         </button>
       </div>
       <input
@@ -273,7 +243,7 @@ export default function VoyageExport({ cruiseName, from, to, date, onCruiseNameC
         type="file"
         accept=".json"
         onChange={handleLoad}
-        aria-label="Load voyage from JSON file"
+        aria-label="Load forecast from JSON file"
         className="hidden"
       />
     </div>

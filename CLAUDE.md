@@ -35,9 +35,9 @@ All pure functions under `src/engine/` and `src/data/`:
 - `data/engineDefaults.ts` — engine config (4 DGs, DG3 MGO-locked = no HFO bunker connection) + load limits.
 - `engine/interpolation.ts` — linear interp on the trial tables.
 - `engine/loadSharing.ts` — picks the minimum set of available DGs to cover demand, distributes kW across them.
-- `engine/consumption.ts` — orchestrates: speed + engines + settings → `CalculationResult` (per-fuel rates, totals, overload flags).
+- `engine/consumption.ts` — orchestrates: speed + engines + settings → `CalculationResult` (per-fuel rates, totals, overload flags). Also `computeStaticConsumption()` (port/anchorage/standby) and `computePortConsumption()`, which folds a fixed **MGO boiler burn (`BOILER_RATE_MT_PER_HR = 0.18`, applied for every port hour)** into the port roll-up — the single source of truth shared by the port box, summary, and export.
 
-Types live in `src/types/index.ts`. Key shapes: `EngineState`, `EngineResult`, `CalculationResult`, `SeaLeg`, `PortEntry`, `StandbyEntry`, `Voyage`.
+Types live in `src/types/index.ts`. Key shapes: `EngineState`, `EngineResult`, `CalculationResult`, `SeaLeg` (carries an optional `assumptions` snapshot of the setup it was added with), `LegAssumptions`, `PortEntry`, `StandbyEntry`, `Voyage`.
 
 **Rule:** the engine never reaches into React. Components pass state in, get a `CalculationResult` back. No side effects.
 
@@ -108,16 +108,18 @@ src/components/
 │   ├── EnginePanel.tsx     # wraps <Panel tagStyle="engine">, grid of 4 EngineCards
 │   └── EngineCard.tsx      # 6px top band + fuel badge + toggle + fuel select + load bar
 ├── parameters/
-│   └── ParametersPanel.tsx # speed, hotel load, sea margin, SFOC deterioration
+│   └── ParametersPanel.tsx # speed, hotel load, sea margin, SFOC deterioration, prop auxiliaries
 ├── results/
 │   └── ResultsPanel.tsx    # sticky strip at top: power, engines, HFO/MGO/LSFO rates, Total pill
 ├── planner/
-│   ├── SeaLegPlanner.tsx
-│   ├── PortHoursEntry.tsx
+│   ├── SeaLegPlanner.tsx     # add-leg + table; each leg is a frozen setup snapshot, with per-leg ↻ recalc + staleness dot
+│   ├── PortHoursEntry.tsx    # hotel-load DG burn + fixed MGO boiler (0.18 t/hr)
+│   ├── AnchorageHoursEntry.tsx
 │   └── StandbyHoursEntry.tsx
 ├── voyage/
-│   ├── VoyageExport.tsx    # from/to/date + Save/Load JSON
-│   └── VoyageSummary.tsx
+│   ├── VoyageMeta.tsx      # cruise name / from / to / date identity fields (top of Voyage Builder)
+│   ├── VoyageSummary.tsx
+│   └── VoyageExport.tsx    # below summary: forecast tally + Export/Load Forecast JSON
 └── settings/
     └── SettingsModal.tsx
 ```
@@ -148,4 +150,4 @@ Preview server name in `.claude/launch.json`: **`voyage-planner`** (port 8091).
 
 ---
 
-*Last updated: 2026-04-21.*
+*Last updated: 2026-06-02.*

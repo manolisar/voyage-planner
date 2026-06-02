@@ -76,8 +76,8 @@ export default function SettingsModal({ open, settings, onSave, onClose }: Props
         </div>
         <div className="p-5">
           <p className="text-[0.72rem] text-dim mb-3.5 leading-relaxed">
-            Hotel Load, Sea Margin, and SFOC Deterioration are editable directly in the Parameters panel.
-            Use this dialog to set all values at once or adjust Propulsion Aux Load.
+            All of these assumptions are now editable directly in the Parameters panel.
+            Use this dialog to review or set every value at once.
           </p>
           <div className="grid grid-cols-2 gap-3.5">
             {fields.map((f, idx) => {

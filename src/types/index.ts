@@ -48,6 +48,18 @@ export interface CalculationResult {
   lsfoRunning: number;
 }
 
+/** Snapshot of the panel setup at the moment a leg was added. */
+export interface LegAssumptions {
+  seaMargin: number;
+  sfocDet: number;
+  hotelLoad: number;
+  propAux: number;
+  hfoRunning: number;
+  mgoRunning: number;
+  lsfoRunning: number;
+  numRunning: number;
+}
+
 export interface SeaLeg {
   id: string;
   speed: number;
@@ -57,6 +69,8 @@ export interface SeaLeg {
   mgoMT: number;
   lsfoMT: number;
   totalMT: number;
+  /** Captured setup at add-time. Optional for voyages saved before snapshots existed. */
+  assumptions?: LegAssumptions;
 }
 
 export interface PortEntry {
