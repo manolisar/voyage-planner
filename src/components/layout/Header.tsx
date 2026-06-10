@@ -25,7 +25,7 @@ export default function Header({ onOpenSettings }: Props) {
             Speed <span className="text-faint font-light mx-0.5">→</span> Power <span className="text-faint font-light mx-0.5">→</span> Consumption
           </div>
           <div className="text-[0.68rem] text-dim tracking-[2.5px] uppercase font-semibold font-mono mt-0.5">
-            Dynamic Model Data · FAT SFOC · 4× Wärtsilä 16V46
+            Solstice Class · FAT SFOC · 4× Wärtsilä 16V46
           </div>
         </div>
       </div>

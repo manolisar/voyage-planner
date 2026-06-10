@@ -1,6 +1,6 @@
-# Voyage Planner — Project Charter
+# Solstice Class Voyage Planner — Project Charter
 
-> Single-page speed/power/fuel consumption model for a vessel with **4× Wärtsilä 16V46** diesel generators.
+> Single-page speed/power/fuel consumption model for **Solstice-class ships** with **4× Wärtsilä 16V46** diesel generators.
 > Companion tool to [Voyage Tracker v7](../Voyage_Tracker_v7/) (which logs actuals); this one models forecasts.
 
 ---
